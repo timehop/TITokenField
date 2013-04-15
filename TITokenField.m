@@ -450,6 +450,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 - (void)setText:(NSString *)text {
 	[super setText:(text.length == 0 ? kTextEmpty : text)];
+    [self sendActionsForControlEvents:UIControlEventEditingChanged];
 }
 
 - (void)setFont:(UIFont *)font {
@@ -495,16 +496,14 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (void)didBeginEditing {
-	[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[self addToken:token];}];
+
 }
 
 - (void)didEndEditing {
 	
 	[selectedToken setSelected:NO];
 	selectedToken = nil;
-	
-	[self tokenizeText];
-	
+		
 	if (removesTokensOnEndEditing){
 		
 		[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[token removeFromSuperview];}];
@@ -575,9 +574,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	}
 	
 	if (shouldAdd){
-		
-		[self becomeFirstResponder];
-		
+				
 		[token addTarget:self action:@selector(tokenTouchDown:) forControlEvents:UIControlEventTouchDown];
 		[token addTarget:self action:@selector(tokenTouchUpInside:) forControlEvents:UIControlEventTouchUpInside];
 		[self addSubview:token];
@@ -598,7 +595,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (void)removeToken:(TIToken *)token {
 	
 	if (token == selectedToken) [self deselectSelectedToken];
-	
+    
 	BOOL shouldRemove = YES;
 	if ([delegate respondsToSelector:@selector(tokenField:willRemoveToken:)]){
 		shouldRemove = [delegate tokenField:self willRemoveToken:token];
@@ -637,14 +634,27 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	
 	[self becomeFirstResponder];
 	[self setText:kTextHidden];
+    
+    if ([delegate respondsToSelector:@selector(tokenField:didSelectToken:)]){
+        [delegate tokenField:self didSelectToken:token];
+    }
 }
 
 - (void)deselectSelectedToken {
-	
-	[selectedToken setSelected:NO];
-	selectedToken = nil;
-	
-	[self setText:kTextEmpty];
+    if (selectedToken != nil) {
+        TIToken *deselectedToken = [selectedToken retain];
+        
+        [selectedToken setSelected:NO];
+        selectedToken = nil;
+        
+        [self setText:kTextEmpty];
+        
+        if ([delegate respondsToSelector:@selector(tokenField:didDeselectToken:)]){
+            [delegate tokenField:self didDeselectToken:deselectedToken];
+        }
+        
+        [deselectedToken autorelease];
+    }
 }
 
 - (void)tokenizeText {
@@ -904,9 +914,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-	
-	[tokenField tokenizeText];
-	
+		
 	if ([delegate respondsToSelector:@selector(textFieldShouldReturn:)]){
 		return [delegate textFieldShouldReturn:textField];
 	}
