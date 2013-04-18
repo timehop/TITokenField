@@ -449,7 +449,18 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (void)setText:(NSString *)text {
-	[super setText:(text.length == 0 ? kTextEmpty : text)];
+    NSString *newText;
+    
+    if (self.editing == NO) {
+        newText = @"";
+    } else if (text.length == 0 && self.editing == YES) {
+        newText = kTextEmpty;
+    } else {
+        newText = text;
+    }
+    
+    [super setText:newText];
+//	[super setText:(text.length == 0 ? kTextEmpty : text)];
     [self sendActionsForControlEvents:UIControlEventEditingChanged];
 }
 
@@ -496,7 +507,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (void)didBeginEditing {
-
+    [self setText:kTextEmpty];
 }
 
 - (void)didEndEditing {
@@ -528,11 +539,12 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		[self setText:untokenized];
 	}
 	
+    [self setText:@""];
 	[self setResultsModeEnabled:NO];
 }
 
 - (void)didChangeText {
-	if (self.text.length == 0) [self setText:kTextEmpty];
+	if (self.text.length == 0 && self.editing == YES) [self setText:kTextEmpty];
 }
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
@@ -805,7 +817,12 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (CGRect)placeholderRectForBounds:(CGRect)bounds {
-	return [self textRectForBounds:bounds];
+    // Only show the placeholder if there aren't any tokens
+    if ([self.tokens count] == 0) {
+        return [self textRectForBounds:bounds];
+    } else {
+        return CGRectZero;
+    }
 }
 
 - (CGRect)leftViewRectForBounds:(CGRect)bounds {
