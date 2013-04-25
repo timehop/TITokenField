@@ -113,6 +113,8 @@ typedef enum {
 	int numberOfLines;
 	
 	NSCharacterSet * tokenizingCharacters;
+    
+    CGFloat hPadding;
 }
 
 @property (nonatomic, assign) id <TITokenFieldDelegate> delegate;
@@ -125,6 +127,7 @@ typedef enum {
 @property (nonatomic, assign) BOOL removesTokensOnEndEditing;
 @property (nonatomic, readonly) int numberOfLines;
 @property (nonatomic, retain) NSCharacterSet * tokenizingCharacters;
+@property (nonatomic, readwrite) CGFloat hPadding;
 
 - (void)addToken:(TIToken *)title;
 - (TIToken *)addTokenWithTitle:(NSString *)title;

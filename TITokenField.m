@@ -392,6 +392,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 @synthesize numberOfLines;
 @synthesize selectedToken;
 @synthesize tokenizingCharacters;
+@synthesize hPadding;
 
 #pragma mark Init
 - (id)initWithFrame:(CGRect)frame {
@@ -439,6 +440,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	editable = YES;
 	removesTokensOnEndEditing = YES;
 	tokenizingCharacters = [[NSCharacterSet characterSetWithCharactersInString:@","] retain];
+    hPadding = 8;
 }
 
 #pragma mark Property Overrides
@@ -460,7 +462,6 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
     }
     
     [super setText:newText];
-//	[super setText:(text.length == 0 ? kTextEmpty : text)];
     [self sendActionsForControlEvents:UIControlEventEditingChanged];
 }
 
@@ -698,9 +699,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (CGFloat)layoutTokensInternal {
 	
 	CGFloat topMargin = floor(self.font.lineHeight * 4 / 7);
-	CGFloat leftMargin = self.leftViewWidth + 12;
-	CGFloat hPadding = 8;
-	CGFloat rightMargin = self.rightViewWidth + hPadding;
+	CGFloat leftMargin = self.leftViewWidth + self.hPadding + 4;
+	CGFloat rightMargin = self.rightViewWidth + self.hPadding;
 	CGFloat lineHeight = self.font.lineHeight + topMargin + 5;
 	
 	numberOfLines = 1;
@@ -709,13 +709,13 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){
 		
 		[token setFont:self.font];
-		[token setMaxWidth:(self.bounds.size.width - rightMargin - (numberOfLines > 1 ? hPadding : leftMargin))];
+		[token setMaxWidth:(self.bounds.size.width - rightMargin - (numberOfLines > 1 ? self.hPadding : leftMargin))];
 		
 		if (token.superview){
 			
 			if (tokenCaret.x + token.bounds.size.width + rightMargin > self.bounds.size.width){
 				numberOfLines++;
-				tokenCaret.x = (numberOfLines > 1 ? hPadding : leftMargin);
+				tokenCaret.x = (numberOfLines > 1 ? self.hPadding : leftMargin);
 				tokenCaret.y += lineHeight;
 			}
 			
@@ -724,7 +724,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			
 			if (self.bounds.size.width - tokenCaret.x - rightMargin < 50){
 				numberOfLines++;
-				tokenCaret.x = (numberOfLines > 1 ? hPadding : leftMargin);
+				tokenCaret.x = (numberOfLines > 1 ? self.hPadding : leftMargin);
 				tokenCaret.y += lineHeight;
 			}
 		}
@@ -790,7 +790,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		}
 		
 		[label setText:text];
-		[label setFont:[UIFont systemFontOfSize:(self.font.pointSize + 1)]];
+        [label setFont:self.font];
 		[label sizeToFit];
 	}
 	else
@@ -807,7 +807,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	if ([self.text isEqualToString:kTextHidden]) return CGRectMake(0, -20, 0, 0);
 	
 	CGRect frame = CGRectOffset(bounds, tokenCaret.x + 2, tokenCaret.y + 3);
-	frame.size.width -= (tokenCaret.x + self.rightViewWidth + 10);
+	frame.size.width -= (tokenCaret.x + self.rightViewWidth + self.hPadding + 2);
 	
 	return frame;
 }
@@ -826,12 +826,13 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (CGRect)leftViewRectForBounds:(CGRect)bounds {
-	return ((CGRect){{8, ceilf(self.font.lineHeight * 4 / 7)}, self.leftView.bounds.size});
+    CGRect textRect = [self textRectForBounds:bounds];
+    return ((CGRect){{self.hPadding, floorf(self.font.lineHeight * 4 / 7) + 2}, self.leftView.bounds.size});
 }
 
 - (CGRect)rightViewRectForBounds:(CGRect)bounds {
-	return ((CGRect){{bounds.size.width - self.rightView.bounds.size.width - 6,
-		bounds.size.height - self.rightView.bounds.size.height - 6}, self.rightView.bounds.size});
+	return ((CGRect){{bounds.size.width - self.rightView.bounds.size.width - 6.0,
+		ceilf((bounds.size.height - self.rightView.bounds.size.height)/2.0)}, self.rightView.bounds.size});
 }
 
 - (CGFloat)leftViewWidth {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "TITokenField"
-  s.version      = "0.9.1"
+  s.version      = "0.9.2"
   s.summary      = "An iOS version of the NSTokenField (See To: field in Mail and Messages)."
   s.homepage     = "https://github.com/thermogl/TITokenField"
   s.license      = {
@@ -21,7 +21,7 @@ THIS SOFTWARE IS PROVIDED BY TOM IRVING "AS IS" AND ANY EXPRESS OR IMPLIED WARRA
   }
 
   s.author       = { "Tom Irving" => "info@thermoglobalnuclearwar.com" }
-  s.source       = { :git => "https://github.com/timehop/TITokenField.git", :tag => "0.9.1" }
+  s.source       = { :git => "https://github.com/timehop/TITokenField.git", :tag => "0.9.2" }
   s.platform     = :ios
   s.source_files = 'TITokenField.{h,m}'
 end
