@@ -454,9 +454,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (void)setText:(NSString *)text {
     NSString *newText;
     
-    if (self.editing == NO) {
-        newText = @"";
-    } else if (text.length == 0 && self.editing == YES) {
+    if (text.length == 0 && self.editing == YES) {
         newText = kTextEmpty;
     } else {
         newText = text;
