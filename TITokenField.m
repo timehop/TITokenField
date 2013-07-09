@@ -460,6 +460,10 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
         newText = text;
     }
     
+    if ([self.text isEqualToString:newText]) {
+        return;
+    }
+    
     [super setText:newText];
     [self sendActionsForControlEvents:UIControlEventEditingChanged];
 }
