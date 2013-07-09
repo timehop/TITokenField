@@ -525,6 +525,11 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (void)didBeginEditing {
+    if (removesTokensOnEndEditing) {
+        [tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[self addSubview:token];}];
+        [self layoutTokensAnimated:YES];
+    }
+    
     [self setText:kTextEmpty];
 }
 
