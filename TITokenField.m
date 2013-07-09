@@ -555,9 +555,10 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		}
 		
 		[self setText:untokenized];
-	}
+	} else {
+        [self setText:kTextEmpty];
+    }
 	
-    [self setText:@""];
 	[self setResultsModeEnabled:NO];
 }
 
@@ -619,6 +620,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		
 		[self setResultsModeEnabled:NO];
 		[self deselectSelectedToken];
+        [self setText:kTextEmpty];
 	}
 }
 
@@ -652,7 +654,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		[self removeToken:token];
 	}];
 	
-    [self setText:@""];
+    [self setText:kTextEmpty];
 }
 
 - (void)selectToken:(TIToken *)token {
