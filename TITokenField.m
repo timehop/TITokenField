@@ -481,6 +481,11 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	[internalDelegate setDelegate:delegate];
 }
 
+- (void)setRightView:(UIView *)rightView_ {
+    [super setRightView:rightView_];
+    [self layoutTokensAnimated:YES];
+}
+
 - (NSArray *)tokens {
 	return [[tokens copy] autorelease];
 }
