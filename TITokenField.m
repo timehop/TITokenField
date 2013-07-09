@@ -211,7 +211,7 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	
 	id representedObject = [resultsArray objectAtIndex:indexPath.row];
-    TIToken * token = [[TIToken alloc] initWithTitle:[self displayStringForRepresentedObject:representedObject] representedObject:representedObject];
+    TIToken * token = [[[tokenField tokenClass] alloc] initWithTitle:[self displayStringForRepresentedObject:representedObject] representedObject:representedObject];
     [tokenField addToken:token];
 	[token release];
 	
@@ -393,6 +393,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 @synthesize selectedToken;
 @synthesize tokenizingCharacters;
 @synthesize hPadding;
+@synthesize tokenClass;
 
 #pragma mark Init
 - (id)initWithFrame:(CGRect)frame {
@@ -502,6 +503,20 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	return ([self.superview isKindOfClass:[UIScrollView class]] ? (UIScrollView *)self.superview : nil);
 }
 
+- (Class)tokenClass {
+    if (tokenClass != nil) {
+        return tokenClass;
+    } else {
+        return [TIToken class];
+    }
+}
+
+- (void)setTokenClass:(Class)aTokenClass {
+    if ([aTokenClass isSubclassOfClass:[TIToken class]]) {
+        tokenClass = aTokenClass;
+    }
+}
+
 #pragma mark Event Handling
 - (BOOL)becomeFirstResponder {
 	return (editable ? [super becomeFirstResponder] : NO);
@@ -571,7 +586,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (TIToken *)addTokenWithTitle:(NSString *)title representedObject:(id)object {
 	
 	if (title.length){
-		TIToken * token = [[TIToken alloc] initWithTitle:title representedObject:object font:self.font];
+		TIToken * token = [[[self tokenClass] alloc] initWithTitle:title representedObject:object font:self.font];
 		[self addToken:token];
 		return [token autorelease];
 	}
