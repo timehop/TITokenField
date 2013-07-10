@@ -565,9 +565,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		}
 		
 		[self setText:untokenized];
-	} else {
-        [self setText:kTextEmpty];
-    }
+	}
 	
 	[self setResultsModeEnabled:NO];
 }
