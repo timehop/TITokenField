@@ -810,6 +810,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		if (!label || ![label isKindOfClass:[UILabel class]]){
 			label = [[UILabel alloc] initWithFrame:CGRectZero];
 			[label setTextColor:[UIColor colorWithWhite:0.5 alpha:1]];
+            label.backgroundColor = [UIColor clearColor];
 			[self setLeftView:label];
 			[label release];
 			
