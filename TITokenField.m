@@ -376,6 +376,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 @property (nonatomic, readonly) CGFloat leftViewWidth;
 @property (nonatomic, readonly) CGFloat rightViewWidth;
 @property (nonatomic, readonly) UIScrollView * scrollView;
+@property (nonatomic, readonly) UILabel *tokenSummaryLabel;
 @end
 
 @interface TITokenField (Private)
@@ -394,6 +395,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 @synthesize tokenizingCharacters;
 @synthesize hPadding;
 @synthesize tokenClass;
+@synthesize showingTokenSummary;
+@synthesize tokenSummaryLabel;
 
 #pragma mark Init
 - (id)initWithFrame:(CGRect)frame {
@@ -429,6 +432,11 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	[self.layer setShadowColor:[[UIColor blackColor] CGColor]];
 	[self.layer setShadowOpacity:0.6];
 	[self.layer setShadowRadius:12];
+    
+    tokenSummaryLabel = [[UILabel alloc] init];
+    tokenSummaryLabel.backgroundColor = [UIColor clearColor];
+    tokenSummaryLabel.textColor = self.textColor;
+    [self addSubview:tokenSummaryLabel];
 	
 	[self setPromptText:@"To:"];
 	[self setText:nil];
@@ -474,10 +482,54 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 - (void)setFont:(UIFont *)font {
 	[super setFont:font];
-	
+    self.tokenSummaryLabel.font = self.font;
+
 	if ([self.leftView isKindOfClass:[UILabel class]]){
 		[self setPromptText:((UILabel *)self.leftView).text];
 	}
+}
+
+- (void)showTokenSummary:(BOOL)show {
+    if (showingTokenSummary == show) {
+        return;
+    }
+    
+    if (show) {
+        BOOL shouldShow = !self.editing;
+        if (!shouldShow) {
+            return;
+        }
+        
+		[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[token removeFromSuperview];}];
+		
+		NSString * untokenized = kTextEmpty;
+		if (tokens.count){
+			
+			NSMutableArray * titles = [[NSMutableArray alloc] init];
+			[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[titles addObject:token.title];}];
+			
+			untokenized = [self.tokenTitles componentsJoinedByString:@", "];
+			CGSize untokSize = [untokenized sizeWithFont:[UIFont systemFontOfSize:14]];
+			CGFloat availableWidth = self.bounds.size.width - hPadding - self.leftView.bounds.size.width - self.rightView.bounds.size.width;
+			
+			if (tokens.count > 1 && untokSize.width > availableWidth){
+				untokenized = [NSString stringWithFormat:@"%d recipients", titles.count];
+			}
+			
+			[titles release];
+		}
+		
+		[self.tokenSummaryLabel setText:untokenized];
+        [self.tokenSummaryLabel setHidden:NO];
+        [self layoutTokensAnimated:YES];
+        showingTokenSummary = YES;
+    } else {
+        [self.tokenSummaryLabel setText:nil];
+        [self.tokenSummaryLabel setHidden:YES];
+        [tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[self addSubview:token];}];
+        [self layoutTokensAnimated:YES];
+        showingTokenSummary = NO;
+    }
 }
 
 - (void)setDelegate:(id<TITokenFieldDelegate>)del {
@@ -535,8 +587,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 - (void)didBeginEditing {
     if (removesTokensOnEndEditing) {
-        [tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[self addSubview:token];}];
-        [self layoutTokensAnimated:YES];
+        [self showTokenSummary:NO];
     }
     
     [self setText:nil];
@@ -548,27 +599,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	selectedToken = nil;
 		
 	if (removesTokensOnEndEditing){
-		
-		[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[token removeFromSuperview];}];
-		
-		NSString * untokenized = kTextEmpty;
-		if (tokens.count){
-			
-			NSMutableArray * titles = [[NSMutableArray alloc] init];
-			[tokens enumerateObjectsUsingBlock:^(TIToken * token, NSUInteger idx, BOOL *stop){[titles addObject:token.title];}];
-			
-			untokenized = [self.tokenTitles componentsJoinedByString:@", "];
-			CGSize untokSize = [untokenized sizeWithFont:[UIFont systemFontOfSize:14]];
-			CGFloat availableWidth = self.bounds.size.width - self.leftView.bounds.size.width - self.rightView.bounds.size.width;
-			
-			if (tokens.count > 1 && untokSize.width > availableWidth){
-				untokenized = [NSString stringWithFormat:@"%d recipients", titles.count];
-			}
-			
-			[titles release];
-		}
-		
-		[self setText:untokenized];
+		[self showTokenSummary:YES];
 	}
 	
 	[self setResultsModeEnabled:NO];
@@ -760,6 +791,9 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			}
 		}
 	}];
+    
+    const CGFloat leftPadding = 4;
+    [self.tokenSummaryLabel setFrame:CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width+ leftPadding, 0, self.bounds.size.width - leftPadding - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height)];
 	
 	return tokenCaret.y + lineHeight;
 }
@@ -895,6 +929,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	[internalDelegate release];
 	[tokens release];
 	[tokenizingCharacters release];
+    [tokenSummaryLabel release];
     [super dealloc];
 }
 

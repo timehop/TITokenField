@@ -104,11 +104,13 @@ typedef enum {
 	
 	NSMutableArray * tokens;
 	TIToken * selectedToken;
+    UILabel * tokenSummaryLabel;
 	
 	BOOL editable;
 	BOOL resultsModeEnabled;
 	BOOL removesTokensOnEndEditing;
-	
+	BOOL showingTokenSummary;
+    
 	CGPoint tokenCaret;
 	int numberOfLines;
 	
@@ -130,6 +132,7 @@ typedef enum {
 @property (nonatomic, retain) NSCharacterSet * tokenizingCharacters;
 @property (nonatomic, readwrite) CGFloat hPadding;
 @property (nonatomic, assign) Class tokenClass;
+@property (nonatomic, readonly) BOOL showingTokenSummary;
 
 - (void)addToken:(TIToken *)title;
 - (TIToken *)addTokenWithTitle:(NSString *)title;
@@ -144,6 +147,7 @@ typedef enum {
 
 - (void)layoutTokensAnimated:(BOOL)animated;
 - (void)setResultsModeEnabled:(BOOL)enabled animated:(BOOL)animated;
+- (void)showTokenSummary:(BOOL)show;
 
 // Pass nil to hide label
 - (void)setPromptText:(NSString *)aText;
