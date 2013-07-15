@@ -431,7 +431,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	[self.layer setShadowRadius:12];
 	
 	[self setPromptText:@"To:"];
-	[self setText:kTextEmpty];
+	[self setText:nil];
 	
 	internalDelegate = [[TITokenFieldInternalDelegate alloc] init];
 	[internalDelegate setTokenField:self];
@@ -454,8 +454,12 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (void)setText:(NSString *)text {
     NSString *newText;
     
-    if (text.length == 0 && self.editing == YES) {
-        newText = kTextEmpty;
+    if (text.length == 0) {
+        if (self.editing == YES) {
+            newText = kTextEmpty;
+        } else { // Show the placeholder if not editing
+            newText = nil;
+        }
     } else {
         newText = text;
     }
@@ -535,7 +539,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
         [self layoutTokensAnimated:YES];
     }
     
-    [self setText:kTextEmpty];
+    [self setText:nil];
 }
 
 - (void)didEndEditing {
@@ -628,7 +632,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		
 		[self setResultsModeEnabled:NO];
 		[self deselectSelectedToken];
-        [self setText:kTextEmpty];
+        [self setText:nil];
 	}
 }
 
@@ -662,7 +666,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		[self removeToken:token];
 	}];
 	
-    [self setText:kTextEmpty];
+    [self setText:nil];
 }
 
 - (void)selectToken:(TIToken *)token {
@@ -687,7 +691,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
         [selectedToken setSelected:NO];
         selectedToken = nil;
         
-        [self setText:kTextEmpty];
+        [self setText:nil];
         
         if ([delegate respondsToSelector:@selector(tokenField:didDeselectToken:)]){
             [delegate tokenField:self didDeselectToken:deselectedToken];
