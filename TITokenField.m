@@ -510,10 +510,13 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			
 			untokenized = [self.tokenTitles componentsJoinedByString:@", "];
 			CGSize untokSize = [untokenized sizeWithFont:[UIFont systemFontOfSize:14]];
-			CGFloat availableWidth = self.bounds.size.width - hPadding - self.leftView.bounds.size.width - self.rightView.bounds.size.width;
+            CGFloat additionalPadding = 4 + 4; // additional padding between left and right views
+			CGFloat availableWidth = self.bounds.size.width - hPadding - additionalPadding - self.leftView.bounds.size.width - self.rightView.bounds.size.width;
 			
 			if (tokens.count > 1 && untokSize.width > availableWidth){
-				untokenized = [NSString stringWithFormat:@"%d recipients", titles.count];
+                NSString *firstTitle = titles[0];
+                NSUInteger numberOfTokensAfterFirst = titles.count - 1;
+				untokenized = [NSString stringWithFormat:@"%@ & %d more", firstTitle, numberOfTokensAfterFirst];
 			}
 			
 			[titles release];
@@ -760,8 +763,9 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 - (CGFloat)layoutTokensInternal {
 	
+    CGFloat leftPadding = 4; // additional space between prompt and tokens/text
 	CGFloat topMargin = floor(self.font.lineHeight * 4 / 7);
-	CGFloat leftMargin = self.leftViewWidth + self.hPadding + 4;
+	CGFloat leftMargin = self.leftViewWidth + self.hPadding + leftPadding;
 	CGFloat rightMargin = self.rightViewWidth + self.hPadding;
 	CGFloat lineHeight = self.font.lineHeight + topMargin + 5;
 	
@@ -792,7 +796,6 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		}
 	}];
     
-    const CGFloat leftPadding = 4;
     [self.tokenSummaryLabel setFrame:CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width+ leftPadding, 0, self.bounds.size.width - leftPadding - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height)];
 	
 	return tokenCaret.y + lineHeight;
