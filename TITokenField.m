@@ -814,17 +814,16 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 #pragma mark View Handlers
 - (void)layoutTokensAnimated:(BOOL)animated {
-	
 	CGFloat newHeight = [self layoutTokensInternal];
-	if (self.bounds.size.height != newHeight){
-		
-		// Animating this seems to invoke the triple-tap-delete-key-loop-problem-thing™
-		[UIView animateWithDuration:(animated ? 0.3 : 0) animations:^{
+	if (self.bounds.size.height != newHeight) {
+		[UIView animateWithDuration:(animated ? 0.3 : 0) delay:0 options:UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState animations:^{
 			[self setFrame:((CGRect){self.frame.origin, {self.bounds.size.width, newHeight}})];
 			[self sendActionsForControlEvents:TITokenFieldControlEventFrameWillChange];
 			
 		} completion:^(BOOL complete){
-			if (complete) [self sendActionsForControlEvents:TITokenFieldControlEventFrameDidChange];
+			if (complete) {
+                [self sendActionsForControlEvents:TITokenFieldControlEventFrameDidChange];
+            }
 		}];
 	}
 }
