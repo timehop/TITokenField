@@ -110,6 +110,7 @@ typedef enum {
 	BOOL resultsModeEnabled;
 	BOOL removesTokensOnEndEditing;
 	BOOL showingTokenSummary;
+    BOOL shouldUseResultsMode;
     
 	CGPoint tokenCaret;
 	int numberOfLines;
@@ -127,6 +128,7 @@ typedef enum {
 @property (nonatomic, readonly) NSArray * tokenObjects;
 @property (nonatomic, assign) BOOL editable;
 @property (nonatomic, assign) BOOL resultsModeEnabled;
+@property (nonatomic, assign) BOOL shouldUseResultsMode;
 @property (nonatomic, assign) BOOL removesTokensOnEndEditing;
 @property (nonatomic, readonly) int numberOfLines;
 @property (nonatomic, retain) NSCharacterSet * tokenizingCharacters;

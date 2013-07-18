@@ -389,6 +389,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 @synthesize tokens;
 @synthesize editable;
 @synthesize resultsModeEnabled;
+@synthesize shouldUseResultsMode;
 @synthesize removesTokensOnEndEditing;
 @synthesize numberOfLines;
 @synthesize selectedToken;
@@ -450,6 +451,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	removesTokensOnEndEditing = YES;
 	tokenizingCharacters = [[NSCharacterSet characterSetWithCharactersInString:@","] retain];
     hPadding = 8;
+    shouldUseResultsMode = YES;
 }
 
 #pragma mark Property Overrides
@@ -664,7 +666,12 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			}
 		}
 		
-		[self setResultsModeEnabled:NO];
+        if (self.shouldUseResultsMode) {
+            [self setResultsModeEnabled:NO];
+        } else {
+            [self layoutTokensAnimated:YES];
+        }
+		
 		[self deselectSelectedToken];
         [self setText:nil];
 	}
@@ -690,7 +697,11 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			[delegate tokenField:self didRemoveToken:token];
 		}
 		
-		[self setResultsModeEnabled:NO];
+        if (self.shouldUseResultsMode) {
+            [self setResultsModeEnabled:NO];
+        } else {
+            [self layoutTokensAnimated:YES];            
+        }
 	}
 }
 
@@ -823,23 +834,24 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 }
 
 - (void)setResultsModeEnabled:(BOOL)flag animated:(BOOL)animated {
-	
-	[self layoutTokensAnimated:animated];
-	
-	if (resultsModeEnabled != flag){
-		
-		//Hide / show the shadow
-		[self.layer setMasksToBounds:!flag];
-		
-		UIScrollView * scrollView = self.scrollView;
-		[scrollView setScrollsToTop:!flag];
-		[scrollView setScrollEnabled:!flag];
-		
-		CGFloat offset = ((numberOfLines == 1 || !flag) ? 0 : tokenCaret.y - floor(self.font.lineHeight * 4 / 7) + 1);
-		[scrollView setContentOffset:CGPointMake(0, self.frame.origin.y + offset) animated:animated];
-	}
-	
-	resultsModeEnabled = flag;
+	if (self.shouldUseResultsMode) {
+        [self layoutTokensAnimated:animated];
+        
+        if (resultsModeEnabled != flag){
+            
+            //Hide / show the shadow
+            [self.layer setMasksToBounds:!flag];
+            
+            UIScrollView * scrollView = self.scrollView;
+            [scrollView setScrollsToTop:!flag];
+            [scrollView setScrollEnabled:!flag];
+            
+            CGFloat offset = ((numberOfLines == 1 || !flag) ? 0 : tokenCaret.y - floor(self.font.lineHeight * 4 / 7) + 1);
+            [scrollView setContentOffset:CGPointMake(0, self.frame.origin.y + offset) animated:animated];
+        }
+        
+        resultsModeEnabled = flag;
+    }
 }
 
 #pragma mark Left / Right view stuff
