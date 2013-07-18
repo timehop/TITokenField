@@ -458,6 +458,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 - (void)setFrame:(CGRect)frame {
 	[super setFrame:frame];
 	[self.layer setShadowPath:[[UIBezierPath bezierPathWithRect:self.bounds] CGPath]];
+    [self.tokenSummaryLabel setFrame:[self summaryRect]];
 	[self layoutTokensAnimated:NO];
 }
 
@@ -816,7 +817,6 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	if (self.bounds.size.height != newHeight) {
 		[UIView animateWithDuration:(animated ? 0.3 : 0) delay:0 options:UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState animations:^{
 			[self setFrame:((CGRect){self.frame.origin, {self.bounds.size.width, newHeight}})];
-            [self.tokenSummaryLabel setFrame:[self summaryRect]];
 			[self sendActionsForControlEvents:TITokenFieldControlEventFrameWillChange];
 		} completion:^(BOOL complete){
 			if (complete) {
@@ -933,7 +933,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 
 - (CGRect)summaryRect {
     const CGFloat leftPadding = 4;
-    return CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width+ leftPadding, 0, self.bounds.size.width - leftPadding - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height);
+    CGRect rect = CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width + leftPadding, 0, self.bounds.size.width - leftPadding * 2 - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height);
+    return rect;
 }
 
 #pragma mark Other
