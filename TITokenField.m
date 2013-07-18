@@ -806,9 +806,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			}
 		}
 	}];
-    
-    [self.tokenSummaryLabel setFrame:CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width+ leftPadding, 0, self.bounds.size.width - leftPadding - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height)];
-	
+    	
 	return tokenCaret.y + lineHeight;
 }
 
@@ -818,8 +816,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 	if (self.bounds.size.height != newHeight) {
 		[UIView animateWithDuration:(animated ? 0.3 : 0) delay:0 options:UIViewAnimationOptionLayoutSubviews|UIViewAnimationOptionBeginFromCurrentState animations:^{
 			[self setFrame:((CGRect){self.frame.origin, {self.bounds.size.width, newHeight}})];
+            [self.tokenSummaryLabel setFrame:[self summaryRect]];
 			[self sendActionsForControlEvents:TITokenFieldControlEventFrameWillChange];
-			
 		} completion:^(BOOL complete){
 			if (complete) {
                 [self sendActionsForControlEvents:TITokenFieldControlEventFrameDidChange];
@@ -931,6 +929,11 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 		(self.rightViewMode == UITextFieldViewModeWhileEditing && !self.editing)) return 0;
 	
 	return self.rightView.bounds.size.width;
+}
+
+- (CGRect)summaryRect {
+    const CGFloat leftPadding = 4;
+    return CGRectMake(self.leftView.frame.origin.x + self.leftView.bounds.size.width+ leftPadding, 0, self.bounds.size.width - leftPadding - self.leftView.frame.origin.x - self.leftView.bounds.size.width - self.rightView.bounds.size.width, self.bounds.size.height);
 }
 
 #pragma mark Other
