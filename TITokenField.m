@@ -475,7 +475,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
         newText = text;
     }
     
-    if ([self.text isEqualToString:newText]) {
+    if ((self.text == newText) || ([self.text isEqualToString:newText])) {
         return;
     }
     
